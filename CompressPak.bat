@@ -55,7 +55,7 @@ if not "%testl%" == "%testr%" (
 if "%2"=="-s" set script_silent=1
 if "%3"=="-s" set script_silent=1
 
-call :Msg
+call :NullLine
 call :Header #########################################################################
 call :Header =========================================================================
 call :Msg UE4 pak file compressing script v0.3
@@ -242,6 +242,10 @@ goto :EOF
 
 :Msg
 if %script_silent% == 0 echo # %*
+goto :EOF
+
+:NullLine
+if %script_silent% == 0 echo.
 goto :EOF
 
 :Wait
