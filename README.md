@@ -20,8 +20,10 @@ CompressPak.bat <file> [Options]
   <dd>Silent mode - Prevent any status message</dd>
   <dt><code>-o</code></dt>
   <dd>Overwrite - force to overwrite the original file</dd>
-  <dt><code>-f</code>  <code>-o</code></dt>
+  <dt><code>-f</code></dt>
   <dd>Force - If option <code>-o</code> is not given, this will force to overwrite the new file if existing</dd>
+  <dt><code>-u</code></dt>
+  <dd>Uncompress - Uncompress the pak file instead of re-compressing it</dd>
 </dl>
 
 ## License

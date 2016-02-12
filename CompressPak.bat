@@ -9,6 +9,7 @@ set CustomRoot=
 
 set overwrite=1
 set force=0
+set uncompress=0
 
 :: -----------------------------------------------------
 
@@ -76,8 +77,18 @@ ECHO.%~a1 | find "d" >NUL 2>NUL && (
 
 if "%2"=="-o" set overwrite=1
 if "%3"=="-o" set overwrite=1
+if "%4"=="-o" set overwrite=1
 if "%2"=="-f" set force=1
 if "%3"=="-f" set force=1
+if "%4"=="-f" set force=1
+if "%2"=="-u" set uncompress=1
+if "%3"=="-u" set uncompress=1
+if "%4"=="-u" set uncompress=1
+
+if %uncompress% == 1 (
+	set PAKARGS=
+	set FILEARGS=
+)
 
 
 :: Info
@@ -86,6 +97,9 @@ call :Msg %~n1
 call :Msg (%~dp1)
 call :Msg
 call :Msg Options:
+if %uncompress% == 1 (
+	call :Msg  - Uncompress file
+)
 if %overwrite% == 1 (
 	call :Msg  - Overwrite original file
 ) else (
