@@ -21,7 +21,7 @@ set UE4Root=%UE4Root:\\=\%
 set UE4Root=%UE4Root:"=%
 
 set OutDir=%TEMP%\%~n1
-set NewPak=%~dp0%~n1%~x1
+set NewPak=%~dp0%~nx1
 set UnrealPak=%UE4Root%%BinPath%\%BinUnrealPak%
 
 :: Normalize UnrealPak bin
@@ -53,7 +53,7 @@ if "%3"=="-s" set script_silent=1
 call :Msg
 call :Header #########################################################################
 call :Header =========================================================================
-call :Msg UE4 pak file compressing script v0.2
+call :Msg UE4 pak file compressing script v0.3
 call :Msg by RattleSN4K3
 call :Header -------------------------------------------------------------------------
 call :Msg A small command line script allowing to re-compress pak files
@@ -98,10 +98,28 @@ call :Msg Extracting...
 call :Msg Extracting done.
 
 
+:: Count path depth
+set count=0
+call :countdepth "%PakDir%"
+
+
+:: Check mounting
+pushd %PakDir%
+set subpath=
+for /f "tokens=%count%* delims=\" %%f in ('dir /b /s /a-h-s *-AssetRegistry.bin') do (
+	set subpath=/%%g
+	set subpath=!subpath:%%~nxg=!
+)
+
+set subpath=%subpath:\=/%
+if NOT "%subpath%" == "/" (
+	set MountPoint=!MountPoint:%subpath%=/!
+)
+popd
+
+
 :: Creating response file
 pushd %PakDir%
-set count=0
-call :parse "%PakDir%"
 for /f "tokens=%count%* delims=\" %%f in ('dir /b /s /a-d-h-s') do (
 	echo "%PakDir%\%%g" "%MountPoint%%%g" -compressed>>%PakResponseFile%
 )
@@ -167,12 +185,12 @@ goto :EOF
 if %script_no_wait% == 0 @ping 1.1.1.1 -n 1 -w %1 > nul
 goto :EOF
 
-:parse
+:countdepth
 set list=%1
 set list=%list:"=%
 FOR /f "tokens=1* delims=\" %%a IN ("%list%") DO (
   if not "%%a" == "" call Set /A count+=1
-  if not "%%b" == "" call :parse "%%b"
+  if not "%%b" == "" call :countdepth "%%b"
 )
 goto :EOF
 
