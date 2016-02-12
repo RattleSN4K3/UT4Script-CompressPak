@@ -99,6 +99,8 @@ if %overwrite% == 1 (
 
 	if %force% == 0 (
 		if exist "%NewPak%" GOTO :Error_Exists
+	) else (
+		call :Msg  - Force overwrite output file	
 	)
 )
 call :Msg
