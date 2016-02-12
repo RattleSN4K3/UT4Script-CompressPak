@@ -12,6 +12,9 @@ A batch script to re-compress pak files
     ```
 # re-compress a single pak file
 CompressPak.bat <file> [Options]
+
+# uncompress a single pak file
+CompressPak.bat <file> -u [Options]
     ```
 
 ## Options:
