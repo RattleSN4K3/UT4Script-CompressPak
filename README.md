@@ -18,8 +18,10 @@ CompressPak.bat <file> [Options]
 <dl>
   <dt><code>-s</code></dt>
   <dd>Silent mode - Prevent any status message</dd>
-  <dt><code>-f</code>  <code>-o</code></dt>
+  <dt><code>-o</code></dt>
   <dd>Overwrite - force to overwrite the original file</dd>
+  <dt><code>-f</code>  <code>-o</code></dt>
+  <dd>Force - If option <code>-o</code> is not given, this will force to overwrite the new file if existing</dd>
 </dl>
 
 ## License

@@ -7,6 +7,7 @@ set MountPoint=../../../UnrealTournament/
 set CustomRoot=
 
 set overwrite=1
+set force=0
 
 :: -----------------------------------------------------
 
@@ -39,9 +40,11 @@ set UnrealPak=%UnrealPak:"=%
 setlocal enabledelayedexpansion
 set testl=%cmdcmdline:"=%
 set testr=!testl:%~nx0=!
+set FromDrop=0
 if not "%testl%" == "%testr%" (
 	:: opened from drag'n'drop
 	set script_no_wait=0
+	set FromDrop=1
 ) else (
 	:: opened from CMD
 	set overwrite=0
@@ -65,25 +68,46 @@ call :Wait 1000
 if not exist "%UnrealPak%" goto :Error_BatchFileInWrongLocation
 if %1.==. GOTO :Error_NoParameters
 if "%2"=="-o" set overwrite=1
-if "%2"=="-f" set overwrite=1
 if "%3"=="-o" set overwrite=1
-if "%3"=="-f" set overwrite=1
+if "%2"=="-f" set force=1
+if "%3"=="-f" set force=1
 
-if %overwrite% == 0 (
-	if exist "%NewPak%" GOTO :Error_Exists
-)
 
 :: Info
 call :Msg Processing:
 call :Msg %~n1
+call :Msg (%~dp1)
 call :Msg
 call :Msg Options:
 if %overwrite% == 1 (
 	call :Msg  - Overwrite original file
 ) else (
-	call :Msg  - Output file: %NewPak%
+	set TempVar1=
+	set TempVar2=
+	call :GetPath TempVar1=%NewPak%
+	call :GetFilename TempVar2=%NewPak%
+
+	call :Msg  - Output file: !TempVar2!
+	call :Msg  - Output dir: !TempVar1!
+
+	if %force% == 0 (
+		if exist "%NewPak%" GOTO :Error_Exists
+	)
 )
 call :Msg
+
+
+:: Process options
+set PakFile=%1
+if %overwrite% == 1 (
+	set NewPak=%1
+	if %FromDrop% == 1 (
+		echo.
+		echo.Press any key to continue... 
+		pause > nul
+	)
+)
+
 
 :: Clean up old temp files
 if exist "%OutDir%" (
@@ -94,7 +118,7 @@ if exist "%OutDir%" (
 
 :: Extracting
 call :Msg Extracting...
-"%UnrealPak%" %1 -extract "%PakDir%" > nul
+"%UnrealPak%" %PakFile% -extract "%PakDir%" > nul
 call :Msg Extracting done.
 
 
@@ -128,7 +152,6 @@ popd
 
 :: Compressing
 if %overwrite% == 1 (
-	set NewPak=%1
 	call :Msg Overwriting old pak file
 )
 call :Msg Compressing...
@@ -155,7 +178,7 @@ call :Msg This script must be run from within that directory.
 call :Msg
 call :Msg or specify 'CustomRoot' in the top of this file.
 call :Msg
-pause
+if %FromDrop% == 1 pause
 goto Exit
 
 :Error_NoParameters
@@ -166,6 +189,7 @@ call :Wait 500
 goto Exit
 
 :Error_Exists
+call :Msg
 call :Msg ERROR:
 call :Msg Output file already exists.
 call :Msg Use the force option (-f) to overwrite or delete the file.
@@ -194,5 +218,12 @@ FOR /f "tokens=1* delims=\" %%a IN ("%list%") DO (
 )
 goto :EOF
 
+:GetFilename
+set %~1=%~n2
+goto :EOF
+
+:GetPath
+set %~1=%~dp2
+goto :EOF
 
 :Exit
