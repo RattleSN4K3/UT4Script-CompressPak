@@ -58,7 +58,7 @@ if "%3"=="-s" set script_silent=1
 call :NullLine
 call :Header #########################################################################
 call :Header =========================================================================
-call :Msg UE4 pak file compressing script v0.4
+call :Msg UE4 pak file compressing script v0.5
 call :Msg by RattleSN4K3
 call :Header -------------------------------------------------------------------------
 call :Msg A small command line script allowing to re-compress pak files
@@ -166,11 +166,27 @@ popd
 
 
 :: Creating response file
-pushd %PakDir%
-for /f "tokens=%count%* delims=\" %%f in ('dir /b /s /a-d-h-s') do (
-	echo "%PakDir%\%%g" "%MountPoint%%%g" %FILEARGS%>>%PakResponseFile%
+
+:: preserve pak order (kinda)
+set orderfile=%OutDir%\order.txt
+"%UnrealPak%" %PakFile% -list > %orderfile%
+for /F "tokens=*" %%A in (%orderfile%) do (
+	set InFile=
+	call :ParseOutputList InFile=%%A
+	if NOT "!InFile!" == "" (
+		echo "%PakDir%\!InFile!" "%MountPoint%!InFile!" %FILEARGS%>>%PakResponseFile%
+	)
 )
-popd
+
+:: !!! OLD CODE BELOW
+
+:: pushd %PakDir%
+:: for /f "tokens=%count%* delims=\" %%f in ('dir /b /s /a-d-h-s') do (
+:: 	echo "%PakDir%\%%g" "%MountPoint%%%g" %FILEARGS%>>%PakResponseFile%
+:: )
+:: popd
+
+:: !!! OLD CODE END
 
 
 :: Compressing
@@ -268,5 +284,51 @@ goto :EOF
 :GetPath
 set %~1=%~dp2
 goto :EOF
+
+:ParseOutputList
+:: setlocal enabledelayedexpansion
+set string=%*
+set "find=*Display: "
+call set string=%%string:!find!=%%
+
+set "find=* offset: "
+call set delete=%%string:!find!=%%
+call set string=%%string:!delete!=%%
+
+:: remove " offset: "
+set string=%string:~0,-9%
+
+set first=%string:~0,1%
+set first=%first:"=%
+if "%first%" == "" (
+	:: remove quotes
+	set string=%string:~1,-1%
+	set %~1=!string!
+) else (
+	set %~1=
+)
+goto :EOF
+
+
+:ParseOutputTest
+:: setlocal enabledelayedexpansion
+set string=%*
+set "find=*Display: "
+call set string=%%string:!find!=%%
+
+:: remove " OK."
+set string=%string:~0,-4%
+
+set first=%string:~0,1%
+set first=%first:"=%
+if "%first%" == "" (
+	:: remove quotes
+	set string=%string:~1,-1%
+	set %~1=!string!
+) else (
+	set %~1=
+)
+goto :EOF
+
 
 :Exit
