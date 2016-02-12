@@ -3,6 +3,7 @@
 set BinPath=Engine\Binaries\Win64
 set BinUnrealPak=UnrealPak.exe
 set PAKARGS=-compress
+set FILEARGS=-compress
 set MountPoint=../../../UnrealTournament/
 set CustomRoot=
 
@@ -151,7 +152,7 @@ popd
 :: Creating response file
 pushd %PakDir%
 for /f "tokens=%count%* delims=\" %%f in ('dir /b /s /a-d-h-s') do (
-	echo "%PakDir%\%%g" "%MountPoint%%%g" -compressed>>%PakResponseFile%
+	echo "%PakDir%\%%g" "%MountPoint%%%g" %FILEARGS%>>%PakResponseFile%
 )
 popd
 
