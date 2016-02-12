@@ -88,7 +88,7 @@ call :Msg
 :: Clean up old temp files
 if exist "%OutDir%" (
 	call :Msg Clean up old temp files...
-	rmdir "%PakDir%" /s /q
+	rmdir "%OutDir%" /s /q
 	call :Msg Clean up old temp files done.
 )
 
