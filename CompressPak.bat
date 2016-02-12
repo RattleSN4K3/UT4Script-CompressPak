@@ -1,7 +1,9 @@
 @echo off
+
 set BinPath=Engine\Binaries\Win64
 set BinUnrealPak=UnrealPak.exe
 set PAKARGS=-compress
+set MountPoint=../../../UnrealTournament/
 set CustomRoot=
 
 set overwrite=1
@@ -15,7 +17,7 @@ set UE4Root=%~dp0
 if NOT ["%CustomRoot%"] == [""] set UE4Root=%CustomRoot%\
 
 :: Normalize paths
-set UE4Root=%UE4Root:\\=%
+set UE4Root=%UE4Root:\\=\%
 set UE4Root=%UE4Root:"=%
 
 set OutDir=%TEMP%\%~n1
@@ -23,11 +25,14 @@ set NewPak=%~dp0%~n1%~x1
 set UnrealPak=%UE4Root%%BinPath%\%BinUnrealPak%
 
 :: Normalize UnrealPak bin
-set OutDir=%OutDir:\\=%
+set OutDir=%OutDir:\\=\%
 set OutDir=%OutDir:"=%
 
+set PakDir=%OutDir%\Pak
+set PakResponseFile=%OutDir%\list.txt
+
 :: Normalize UnrealPak bin
-set UnrealPak=%UnrealPak:\\=%
+set UnrealPak=%UnrealPak:\\=\%
 set UnrealPak=%UnrealPak:"=%
 
 : Check if opened from CMD
@@ -48,7 +53,7 @@ if "%3"=="-s" set script_silent=1
 call :Msg
 call :Header #########################################################################
 call :Header =========================================================================
-call :Msg UE4 pak file compressing script v0.1
+call :Msg UE4 pak file compressing script v0.2
 call :Msg by RattleSN4K3
 call :Header -------------------------------------------------------------------------
 call :Msg A small command line script allowing to re-compress pak files
@@ -83,14 +88,25 @@ call :Msg
 :: Clean up old temp files
 if exist "%OutDir%" (
 	call :Msg Clean up old temp files...
-	rmdir "%OutDir%" /s /q
+	rmdir "%PakDir%" /s /q
 	call :Msg Clean up old temp files done.
 )
 
 :: Extracting
 call :Msg Extracting...
-"%UnrealPak%" %1 -extract "%OutDir%" > nul
+"%UnrealPak%" %1 -extract "%PakDir%" > nul
 call :Msg Extracting done.
+
+
+:: Creating response file
+pushd %PakDir%
+set count=0
+call :parse "%PakDir%"
+for /f "tokens=%count%* delims=\" %%f in ('dir /b /s /a-d-h-s') do (
+	echo "%PakDir%\%%g" "%MountPoint%%%g" -compressed>>%PakResponseFile%
+)
+popd
+
 
 :: Compressing
 if %overwrite% == 1 (
@@ -98,7 +114,7 @@ if %overwrite% == 1 (
 	call :Msg Overwriting old pak file
 )
 call :Msg Compressing...
-"%UnrealPak%" "%NewPak%" -create="%OutDir%" %PAKARGS% > nul
+"%UnrealPak%" %NewPak% -create="%PakResponseFile%" %PAKARGS% > nul
 call :Msg Compressing done.
 
 :: Deleting temp files
@@ -149,6 +165,15 @@ goto :EOF
 
 :Wait
 if %script_no_wait% == 0 @ping 1.1.1.1 -n 1 -w %1 > nul
+goto :EOF
+
+:parse
+set list=%1
+set list=%list:"=%
+FOR /f "tokens=1* delims=\" %%a IN ("%list%") DO (
+  if not "%%a" == "" call Set /A count+=1
+  if not "%%b" == "" call :parse "%%b"
+)
 goto :EOF
 
 
