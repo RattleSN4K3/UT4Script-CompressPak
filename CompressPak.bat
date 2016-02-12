@@ -67,6 +67,12 @@ call :Wait 1000
 
 if not exist "%UnrealPak%" goto :Error_BatchFileInWrongLocation
 if %1.==. GOTO :Error_NoParameters
+if not exist %1 goto :Error_NoPakFile %1
+SETLOCAL ENABLEEXTENSIONS
+ECHO.%~a1 | find "d" >NUL 2>NUL && (
+	goto :Error_IsDir %1
+)
+
 if "%2"=="-o" set overwrite=1
 if "%3"=="-o" set overwrite=1
 if "%2"=="-f" set force=1
@@ -186,6 +192,22 @@ call :Msg ERROR:
 call :Msg No parameter set.
 call :Msg
 call :Wait 500
+goto Exit
+
+:Error_NoPakFile
+call :Msg ERROR:
+call :Msg No valid pak file given. Unable to find given file:
+call :Msg %~1
+call :Msg
+call :Wait 1000
+goto Exit
+
+:Error_IsDir
+call :Msg ERROR:
+call :Msg Input file is a directory:
+call :Msg %~1
+call :Msg
+call :Wait 1000
 goto Exit
 
 :Error_Exists
