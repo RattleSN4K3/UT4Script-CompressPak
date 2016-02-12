@@ -58,7 +58,7 @@ if "%3"=="-s" set script_silent=1
 call :NullLine
 call :Header #########################################################################
 call :Header =========================================================================
-call :Msg UE4 pak file compressing script v0.3
+call :Msg UE4 pak file compressing script v0.4
 call :Msg by RattleSN4K3
 call :Header -------------------------------------------------------------------------
 call :Msg A small command line script allowing to re-compress pak files
