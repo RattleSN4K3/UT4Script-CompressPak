@@ -10,6 +10,7 @@ set CustomRoot=
 set overwrite=1
 set force=0
 set uncompress=0
+set newversion=
 
 :: -----------------------------------------------------
 
@@ -52,14 +53,17 @@ if not "%testl%" == "%testr%" (
 	set overwrite=0
 )
 
-if "%2"=="-s" set script_silent=1
-if "%3"=="-s" set script_silent=1
-if "%4"=="-s" set script_silent=1
+:: check for silent mode
+for %%x in (%*) do (
+    if "%%x"=="-s" (
+        set script_silent=1
+    )
+)
 
 call :NullLine
 call :Header #########################################################################
 call :Header =========================================================================
-call :Msg UE4 pak file compressing script v0.5
+call :Msg UE4 pak file compressing script v0.6
 call :Msg by RattleSN4K3
 call :Header -------------------------------------------------------------------------
 call :Msg A small command line script allowing to re-compress pak files
@@ -76,15 +80,15 @@ ECHO.%~a1 | find "d" >NUL 2>NUL && (
 	goto :Error_IsDir %1
 )
 
-if "%2"=="-o" set overwrite=1
-if "%3"=="-o" set overwrite=1
-if "%4"=="-o" set overwrite=1
-if "%2"=="-f" set force=1
-if "%3"=="-f" set force=1
-if "%4"=="-f" set force=1
-if "%2"=="-u" set uncompress=1
-if "%3"=="-u" set uncompress=1
-if "%4"=="-u" set uncompress=1
+
+:: Remove first argument from command line
+SET allargs=%*
+CALL SET restargs=%%allargs:*%1=%%
+SET restargs=%restargs:~1%
+
+:: parse command line arguments. see AssignKeyValue
+call :SplitArgs %restargs%
+
 
 if %uncompress% == 1 (
 	set PAKARGS=
@@ -100,6 +104,9 @@ call :Msg
 call :Msg Options:
 if %uncompress% == 1 (
 	call :Msg  - Uncompress file
+) else if "%newversion%" NEQ "" (
+    call :Msg  - Overwrite network version: %newversion%
+    call :Msg
 )
 if %overwrite% == 1 (
 	call :Msg  - Overwrite original file
@@ -164,6 +171,26 @@ if NOT "%subpath%" == "/" (
 	set MountPoint=!MountPoint:%subpath%=/!
 )
 popd
+
+
+:: Check network version
+set networkversion=
+if "%newversion%" NEQ "" (
+    pushd %PakDir%
+    set versionfile=
+    for /r %PakDir% %%f in (*-version.txt) do (
+        set versionfile=%%f
+        set /p networkversion=<%%f
+    )
+    popd
+    call :Msg 
+    call :Msg Current network version: !networkversion!
+    call :Msg Overwrite with: %newversion%
+
+    echo %newversion%>!versionfile!
+    call :Msg Version set.
+    call :Msg 
+)
 
 
 :: Creating response file
@@ -331,5 +358,34 @@ if "%first%" == "" (
 )
 goto :EOF
 
+
+:SplitArgs
+REM recursive procedure to split off the first two tokens from the input
+if "%*" NEQ "" (
+    REM %%i = KEY, %%j = VALUE, %%k = remainder of input
+    REM delimiters are space character and equals character
+    for /F "tokens=1,2,* delims== " %%i in ("%*") do (
+        call :AssignKeyValue %%i %%j & call :SplitArgs %%j %%k
+    )
+)
+goto :eof
+
+
+:AssignKeyValue
+REM KEY %1, VALUE %2
+if "%1" EQU "-o" (
+    SET overwrite=1
+) else if "%1" EQU "-f" (
+    SET force=1
+) else if "%1" EQU "-u" (
+    SET uncompress=1
+) else if "%1" EQU "-n" (
+    SET newversion=%2
+) else (
+    REM Append unrecognised [key,value] to BADARGS
+    REM echo Unknown KEY %1
+    REM SET BADARGS=%BADARGS%[%1, %2]
+)
+goto :eof
 
 :Exit
