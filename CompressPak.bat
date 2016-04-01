@@ -106,8 +106,8 @@ if %overwrite% == 1 (
 ) else (
 	set TempVar1=
 	set TempVar2=
-	call :GetPath TempVar1=%NewPak%
-	call :GetFilename TempVar2=%NewPak%
+	call :GetPath TempVar1="%NewPak%"
+	call :GetFilename TempVar2="%NewPak%"
 
 	call :Msg  - Output file: !TempVar2!
 	call :Msg  - Output dir: !TempVar1!
