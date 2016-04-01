@@ -27,6 +27,8 @@ CompressPak.bat <file> -u [Options]
   <dd>Force - If option <code>-o</code> is not given, this will force to overwrite the new file if existing</dd>
   <dt><code>-u</code></dt>
   <dd>Uncompress - Uncompress the pak file instead of re-compressing it</dd>
+  <dt><code>-n=&lt;NUMBER&gt;</code><br /><code>-n &lt;NUMBER&gt;</code></dt>
+  <dd>Network version - sets/overwrites the network version of the pak file</dd>
 </dl>
 
 ## License
