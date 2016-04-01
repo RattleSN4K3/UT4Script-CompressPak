@@ -129,9 +129,9 @@ call :Msg
 
 
 :: Process options
-set PakFile=%1
+set PakFile=%~1
 if %overwrite% == 1 (
-	set NewPak=%1
+	set NewPak=%~1
 	if %FromDrop% == 1 (
 		echo.
 		echo.Press any key to continue... 
@@ -149,7 +149,7 @@ if exist "%OutDir%" (
 
 :: Extracting
 call :Msg Extracting...
-"%UnrealPak%" %PakFile% -extract "%PakDir%" > nul
+"%UnrealPak%" "%PakFile%" -extract "%PakDir%" > nul
 call :Msg Extracting done.
 
 
@@ -197,7 +197,7 @@ if "%newversion%" NEQ "" (
 
 :: preserve pak order (kinda)
 set orderfile=%OutDir%\order.txt
-"%UnrealPak%" %PakFile% -list > %orderfile%
+"%UnrealPak%" "%PakFile%" -list > %orderfile%
 for /F "tokens=*" %%A in (%orderfile%) do (
 	set InFile=
 	call :ParseOutputList InFile=%%A
@@ -222,7 +222,7 @@ if %overwrite% == 1 (
 	call :Msg Overwriting old pak file
 )
 call :Msg Compressing...
-"%UnrealPak%" %NewPak% -create="%PakResponseFile%" %PAKARGS% > nul
+"%UnrealPak%" "%NewPak%" -create="%PakResponseFile%" %PAKARGS% > nul
 call :Msg Compressing done.
 
 :: Deleting temp files
