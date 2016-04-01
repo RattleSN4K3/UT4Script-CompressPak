@@ -54,6 +54,7 @@ if not "%testl%" == "%testr%" (
 
 if "%2"=="-s" set script_silent=1
 if "%3"=="-s" set script_silent=1
+if "%4"=="-s" set script_silent=1
 
 call :NullLine
 call :Header #########################################################################
